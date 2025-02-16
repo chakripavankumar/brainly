@@ -1,24 +1,47 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { Types } from "mongoose";
+import { MONGO_URL } from "./config";
+mongoose.connect(MONGO_URL);
+const Schema = mongoose.Schema;
 
-mongoose.connect(
-  "mongodb://admin:secret@localhost:27017/brainly?authSource=admin"
-);
+const userSchema = new mongoose.Schema({
+  userName: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-const UserSchema = new Schema({
-  username: { type: String, unique: true },
-  password: String,
+const tagSchema = new mongoose.Schema({
+  title: { type: String, required: true, unique: true },
 });
-export const UserModel = model("User", UserSchema);
-const ContentSchema = new Schema({
-  title: String,
-  link: String,
-  tags: [{ type: mongoose.Types.ObjectId, ref: "Tag" }],
-  userId: { type: mongoose.Types.ObjectId, ref: "User", required: true },
-});
-export const ContentModel = model("Content", ContentSchema);
 
-const LinkSchema = new Schema({
-  hash: String,
-  userId:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true },
+const contentTypes = [
+  "image",
+  "video",
+  "article",
+  "audio",
+  "youtube",
+  "twitter",
+];
+
+const contentSchema = new mongoose.Schema({
+  link: { type: String, required: true },
+  type: { type: String, enum: contentTypes, required: true },
+  title: { type: String, required: true },
+  tags: [{ type: Types.ObjectId, ref: "Tags" }],
+  userId: { type: Types.ObjectId, ref: "Users", required: true },
 });
-export const LinkModel = model("Links", LinkSchema);
+console.log("MONGO_URL from env:", process.env.MONGO_URL);
+const linkSchema = new mongoose.Schema({
+  hash: { type: String, required: true },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+    required: true,
+  },
+});
+
+export const UserModel = mongoose.model("Users", userSchema);
+
+export const TagModel = mongoose.model("Tags", tagSchema);
+
+export const ContentModel = mongoose.model("Contents", contentSchema);
+
+export const LinkModel = mongoose.model("Links", linkSchema);
