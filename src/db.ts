@@ -1,10 +1,11 @@
 import mongoose, { Types } from "mongoose";
-import { MONGO_URL } from "./config";
-mongoose.connect(MONGO_URL);
-const Schema = mongoose.Schema;
+
+mongoose.connect("mongodb://localhost:27017/brainly")
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.error("MongoDB Connection Error:", err));
 
 const userSchema = new mongoose.Schema({
-  userName: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 

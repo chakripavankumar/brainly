@@ -33,18 +33,43 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContentModel = exports.UserModel = void 0;
+exports.LinkModel = exports.ContentModel = exports.TagModel = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-mongoose_1.default.connect("mongodb://admin:secret@localhost:27017/brainly?authSource=admin");
-const UserSchema = new mongoose_1.Schema({
-    username: { type: String, unique: true },
-    password: String
+mongoose_1.default.connect("mongodb://localhost:27017/brainly")
+    .then(() => console.log("MongoDB Connected"))
+    .catch(err => console.error("MongoDB Connection Error:", err));
+const userSchema = new mongoose_1.default.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 });
-exports.UserModel = (0, mongoose_1.model)("User", UserSchema);
-const ContentSchema = new mongoose_1.Schema({
-    title: String,
-    link: String,
-    tags: [{ type: mongoose_1.default.Types.ObjectId, ref: 'Tag' }],
-    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', required: true }
+const tagSchema = new mongoose_1.default.Schema({
+    title: { type: String, required: true, unique: true },
 });
-exports.ContentModel = (0, mongoose_1.model)("Content", ContentSchema);
+const contentTypes = [
+    "image",
+    "video",
+    "article",
+    "audio",
+    "youtube",
+    "twitter",
+];
+const contentSchema = new mongoose_1.default.Schema({
+    link: { type: String, required: true },
+    type: { type: String, enum: contentTypes, required: true },
+    title: { type: String, required: true },
+    tags: [{ type: mongoose_1.Types.ObjectId, ref: "Tags" }],
+    userId: { type: mongoose_1.Types.ObjectId, ref: "Users", required: true },
+});
+console.log("MONGO_URL from env:", process.env.MONGO_URL);
+const linkSchema = new mongoose_1.default.Schema({
+    hash: { type: String, required: true },
+    userId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Users",
+        required: true,
+    },
+});
+exports.UserModel = mongoose_1.default.model("Users", userSchema);
+exports.TagModel = mongoose_1.default.model("Tags", tagSchema);
+exports.ContentModel = mongoose_1.default.model("Contents", contentSchema);
+exports.LinkModel = mongoose_1.default.model("Links", linkSchema);

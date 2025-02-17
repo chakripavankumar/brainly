@@ -133,19 +133,31 @@ app.post("/share", Usermiddleware, async (req, res) => {
   }
 });
 
-app.get("/:shareLink", Usermiddleware, async (req, res) => {
-  const hash = req.params.shareLink;
-  const link = await LinkModel.findOne({ hash });
-  if (link) {
-    const content = await ContentModel.find({ userId: link.userId });
+app.get("/:sharelink", async (req, res) => {
+  const hash = req.params.sharelink;
+  const link = await LinkModel.findOne({ hash: hash });
+  if (!link) {
     res.json({
-      content,
+      msg: "sorry incorrect input",
     });
-  } else {
-    res.status(404).json({
-      message: "Link not found",
-    });
+    return;
   }
+  const content = await ContentModel.find({
+    userId: link.userId,
+  });
+  const user = await UserModel.findOne({
+    _id: link.userId,
+  });
+  if (!user) {
+    res.status(411).json({
+      message: "usernot found,error should ideallly not happend ",
+    });
+    return;
+  }
+  res.json({
+    username: user.username,
+    content: content,
+  });
 });
 
-app.listen(3002, () => console.log("server is running on 3002"));
+app.listen(3200, () => console.log("server is running on 3200"));
