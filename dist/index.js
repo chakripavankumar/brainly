@@ -22,7 +22,7 @@ const utils_1 = require("./utils");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-app.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.body.username;
     const password = req.body.password;
     try {
@@ -40,19 +40,19 @@ app.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 }));
-app.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.body.username;
     const password = req.body.password;
     const existingUser = yield db_1.UserModel.findOne({
         username,
-        password,
+        password
     });
     if (existingUser) {
         const token = jsonwebtoken_1.default.sign({
             id: existingUser._id,
         }, config_1.JWT_PASSWORD);
         res.json({
-            token,
+            token
         });
     }
     else {
@@ -61,7 +61,7 @@ app.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 }));
-app.post("/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/api/v1/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const link = req.body.link;
         const type = req.body.type;
@@ -69,7 +69,7 @@ app.post("/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0
         yield db_1.ContentModel.create({
             link,
             type,
-            title,
+            title: req.body.title,
             userId: req.userId,
             tags: [],
         });
@@ -79,20 +79,20 @@ app.post("/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0
     }
     catch (error) {
         res.status(411).json({
-            message: "Error adding content",
+            message: "Error adding content"
         });
     }
 }));
-app.get("/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/api/v1/content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId;
     const content = yield db_1.ContentModel.find({
         userId: userId,
-    }).populate("userId");
+    }).populate("userId", "username");
     res.json({
-        content,
+        content
     });
 }));
-app.delete("/:content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete("api/v1/:content", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contentId = req.body.contentId;
     yield db_1.ContentModel.deleteMany({
         _id: contentId,
@@ -102,7 +102,7 @@ app.delete("/:content", middleware_1.Usermiddleware, (req, res) => __awaiter(voi
         message: "content deleted",
     });
 }));
-app.post("/share", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("api/v1/brain/share", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const share = req.body.share;
     if (share) {
         const existingLink = yield db_1.LinkModel.findOne({
@@ -132,7 +132,7 @@ app.post("/share", middleware_1.Usermiddleware, (req, res) => __awaiter(void 0, 
         });
     }
 }));
-app.get("/:sharelink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("api/v1/brain/:sharelink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const hash = req.params.sharelink;
     const link = yield db_1.LinkModel.findOne({ hash: hash });
     if (!link) {

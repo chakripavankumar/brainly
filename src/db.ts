@@ -1,6 +1,7 @@
 import mongoose, { Types } from "mongoose";
+import { MONGO_URL } from "./config";
 
-mongoose.connect("mongodb://localhost:27017/brainly")
+mongoose.connect(MONGO_URL)
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.error("MongoDB Connection Error:", err));
 
@@ -29,7 +30,7 @@ const contentSchema = new mongoose.Schema({
   tags: [{ type: Types.ObjectId, ref: "Tags" }],
   userId: { type: Types.ObjectId, ref: "Users", required: true },
 });
-console.log("MONGO_URL from env:", process.env.MONGO_URL);
+
 const linkSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   userId: {

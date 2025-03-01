@@ -10,7 +10,11 @@ const Usermiddleware = (req, res, next) => {
     const header = req.headers["authorization"];
     const decoded = jsonwebtoken_1.default.verify(header, config_1.JWT_PASSWORD);
     if (decoded) {
-        // @ts-ignore
+        if (typeof decoded === "string") {
+            res.status(403).json({
+                message: "You are not logged in"
+            });
+        }
         req.userId = decoded.id;
         next();
     }

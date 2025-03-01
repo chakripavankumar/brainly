@@ -35,7 +35,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LinkModel = exports.ContentModel = exports.TagModel = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-mongoose_1.default.connect("mongodb://localhost:27017/brainly")
+const config_1 = require("./config");
+mongoose_1.default.connect(config_1.MONGO_URL)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.error("MongoDB Connection Error:", err));
 const userSchema = new mongoose_1.default.Schema({
@@ -60,7 +61,6 @@ const contentSchema = new mongoose_1.default.Schema({
     tags: [{ type: mongoose_1.Types.ObjectId, ref: "Tags" }],
     userId: { type: mongoose_1.Types.ObjectId, ref: "Users", required: true },
 });
-console.log("MONGO_URL from env:", process.env.MONGO_URL);
 const linkSchema = new mongoose_1.default.Schema({
     hash: { type: String, required: true },
     userId: {
